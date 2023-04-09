@@ -40,6 +40,12 @@ dependencies:
   fluttertoast: ^8.2.1
   flutter_local_notifications: ^13.0.0
   motion_toast: ^2.6.6
+  get: ^4.6.5
+  google_fonts: ^4.0.3
+  google_maps: ^6.2.0
+  image_picker: ^0.8.7+1
+  google_maps_flutter: ^2.2.5
+  cloud_firestore: ^4.5.0
 
 dev_dependencies:
   flutter_test:

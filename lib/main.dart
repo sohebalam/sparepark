@@ -1,9 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:sms_otp/firebase_options.dart';
 import 'package:sms_otp/home.dart';
 import 'package:sms_otp/auth/sign_in.dart';
+import 'package:sms_otp/profile/profile_setting.dart';
 import 'package:sms_otp/style/contstants.dart';
 
 void main() async {
@@ -19,21 +21,6 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    // return MaterialApp(
-    //   theme: ThemeData(
-    //       fontFamily: 'Poppins',
-    //       primaryColor: Constants().primaryColor,
-    //       scaffoldBackgroundColor: Colors.white),
-
-    //   title: 'SMS OTP',
-    //   debugShowCheckedModeBanner: false,
-    //   home: StreamBuilder<User?>(
-    //     stream: _auth.authStateChanges(),
-    //     builder: (context, snapshot) {
-    //       return snapshot.data == null ? const SignInView() : const Home();
-    //     },
-    //   ),
-    // );
     return MaterialApp(
       title: 'SMS OTP',
       theme: ThemeData(
@@ -58,7 +45,44 @@ class MyApp extends StatelessWidget {
       home: StreamBuilder<User?>(
         stream: _auth.authStateChanges(),
         builder: (context, snapshot) {
-          return snapshot.data == null ? const SignInView() : const Home();
+          switch (snapshot.connectionState) {
+            case ConnectionState.waiting:
+              return const CircularProgressIndicator();
+            case ConnectionState.done:
+              if (snapshot.hasError) {
+                return const Text('Error');
+              }
+              break;
+            default:
+              break;
+          }
+
+          if (snapshot.data == null) {
+            return const SignInView();
+          }
+
+          return FutureBuilder<DocumentSnapshot>(
+            future: FirebaseFirestore.instance
+                .collection('users')
+                .doc(snapshot.data!.uid)
+                .get(),
+            builder: (context, snapshot) {
+              switch (snapshot.connectionState) {
+                case ConnectionState.waiting:
+                  return const CircularProgressIndicator();
+                case ConnectionState.done:
+                  if (snapshot.hasError) {
+                    return const Text('Error');
+                  } else if (snapshot.data!.exists) {
+                    return const Home();
+                  } else {
+                    return const ProfileSettingScreen();
+                  }
+                default:
+                  return const SizedBox.shrink();
+              }
+            },
+          );
         },
       ),
     );
