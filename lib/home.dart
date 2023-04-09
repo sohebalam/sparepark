@@ -4,14 +4,13 @@ import 'package:get/get.dart';
 import 'package:sms_otp/auth/function.dart';
 import 'package:sms_otp/auth/sign_in.dart';
 
-class AuthController extends GetxController {
-  String userUid = '';
-}
+final auth = FirebaseAuth.instance;
+
+final user = auth.currentUser;
 
 class Home extends StatelessWidget {
   Home({Key? key}) : super(key: key);
   @override
-  final _auth = FirebaseAuth.instance;
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -20,6 +19,10 @@ class Home extends StatelessWidget {
           IconButton(
             onPressed: () async {
               await disconnect();
+              if (user != null) {
+              } else {
+                Get.to(SignInView());
+              }
             },
             icon: const Icon(Icons.logout_outlined),
           )
