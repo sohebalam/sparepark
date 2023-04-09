@@ -1,6 +1,9 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -10,8 +13,11 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 // import 'package:sms_otp/widgets/green_intro_widget.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as Path;
-
+import 'package:sms_otp/auth/function.dart';
 import '../auth/function.dart';
+import '../home.dart';
+
+import 'dart:io';
 
 class ProfileSettingScreen extends StatefulWidget {
   const ProfileSettingScreen({Key? key}) : super(key: key);
@@ -26,14 +32,11 @@ class _ProfileSettingScreenState extends State<ProfileSettingScreen> {
   TextEditingController businessController = TextEditingController();
   TextEditingController shopController = TextEditingController();
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
-  // AuthController authController = Get.find<AuthController>();
+  // AuthController authController = Get.put(AuthController());
 
   final ImagePicker _picker = ImagePicker();
   File? selectedImage;
 
-  late LatLng homeAddress;
-  late LatLng businessAddress;
-  late LatLng shoppingAddress;
   getImage(ImageSource source) async {
     final XFile? image = await _picker.pickImage(source: source);
     if (image != null) {
@@ -43,6 +46,8 @@ class _ProfileSettingScreenState extends State<ProfileSettingScreen> {
   }
 
   @override
+  bool isProfileUploading = false;
+
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -61,7 +66,7 @@ class _ProfileSettingScreenState extends State<ProfileSettingScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              height: Get.height * 0.3,
+              height: Get.height * 0.25,
               child: Stack(
                 children: [
                   // greenIntroWidgetWithoutLogos(),
@@ -136,21 +141,7 @@ class _ProfileSettingScreenState extends State<ProfileSettingScreen> {
                       }
 
                       return null;
-                    }
-
-                        // , onTap: () async {
-                        //   Prediction? p =
-                        //       await authController.showGoogleAutoComplete(context);
-
-                        //   /// now let's translate this selected address and convert it to latlng obj
-                        //   homeAddress = await authController
-                        //       .buildLatLngFromAddress(p!.description!);
-                        //   homeController.text = p.description!;
-
-                        //   ///store this information into firebase together once update is clicked
-                        // }, readOnly: true
-
-                        ),
+                    }),
                     const SizedBox(
                       height: 10,
                     ),
@@ -161,20 +152,7 @@ class _ProfileSettingScreenState extends State<ProfileSettingScreen> {
                       }
 
                       return null;
-                    }
-
-                        // , onTap: () async {
-                        //   Prediction? p =
-                        //       await authController.showGoogleAutoComplete(context);
-
-                        //   /// now let's translate this selected address and convert it to latlng obj
-                        //   businessAddress = await authController
-                        //       .buildLatLngFromAddress(p!.description!);
-                        //   businessController.text = p.description!;
-
-                        //   ///store this information into firebase together once update is clicked
-                        // }, readOnly: true
-                        ),
+                    }),
                     const SizedBox(
                       height: 10,
                     ),
@@ -188,44 +166,68 @@ class _ProfileSettingScreenState extends State<ProfileSettingScreen> {
 
                       return null;
                     }),
-                    // , onTap: () async {
-                    //   Prediction? p =
-                    //       await authController.showGoogleAutoComplete(context);
-
-                    //   /// now let's translate this selected address and convert it to latlng obj
-                    //   shoppingAddress = await authController
-                    //       .buildLatLngFromAddress(p!.description!);
-                    //   shopController.text = p.description!;
-
-                    //   ///store this information into firebase together once update is clicked
-                    // }, readOnly: true),
                     const SizedBox(
                       height: 30,
                     ),
-                    //   Obx(() => authController.isProfileUploading.value
-                    //       ? Center(
-                    //           child: CircularProgressIndicator(),
-                    //         )
-                    //       : greenButton('Submit', () {
-                    //           if (!formKey.currentState!.validate()) {
-                    //             return;
-                    //           }
+                    ElevatedButton(
+                      onPressed: isProfileUploading
+                          ? null
+                          : () async {
+                              if (!formKey.currentState!.validate()) {
+                                return;
+                              }
 
-                    //           if (selectedImage == null) {
-                    //             Get.snackbar('Warning', 'Please add your image');
-                    //             return;
-                    //           }
-                    //           authController.isProfileUploading(true);
-                    //           authController.storeUserInfo(
-                    //               selectedImage!,
-                    //               nameController.text,
-                    //               homeController.text,
-                    //               businessController.text,
-                    //               shopController.text,
-                    //               businessLatLng: businessAddress,
-                    //               homeLatLng: homeAddress,
-                    //               shoppingLatLng: shoppingAddress);
-                    //         })),
+                              if (selectedImage == null) {
+                                Fluttertoast.showToast(
+                                  msg: "Warning', 'Please add your image",
+                                );
+                                return;
+                              }
+
+                              setState(() {
+                                isProfileUploading = true;
+                              });
+
+                              await storeUserInfo(
+                                selectedImage!,
+                                nameController.text,
+                                homeController.text,
+                                businessController.text,
+                                shopController.text,
+                                context,
+                              );
+
+                              setState(() {
+                                isProfileUploading = false;
+                              });
+
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => Home(),
+                                ),
+                              );
+                            },
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: Size(double.infinity, 50),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        backgroundColor: isProfileUploading
+                            ? Theme.of(context).disabledColor
+                            : Theme.of(context).primaryColor,
+                      ),
+                      child: isProfileUploading
+                          ? CircularProgressIndicator()
+                          : Text(
+                              'Submit',
+                              style: GoogleFonts.poppins(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                    )
                   ],
                 ),
               ),
@@ -237,8 +239,7 @@ class _ProfileSettingScreenState extends State<ProfileSettingScreen> {
   }
 
   TextFieldWidget(String title, IconData iconData,
-      TextEditingController controller, Function validator,
-      {Function? onTap, bool readOnly = false}) {
+      TextEditingController controller, Function validator) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -265,8 +266,6 @@ class _ProfileSettingScreenState extends State<ProfileSettingScreen> {
               ],
               borderRadius: BorderRadius.circular(8)),
           child: TextFormField(
-            readOnly: readOnly,
-            onTap: () => onTap!(),
             validator: (input) => validator(input),
             controller: controller,
             style: GoogleFonts.poppins(
@@ -276,28 +275,16 @@ class _ProfileSettingScreenState extends State<ProfileSettingScreen> {
             decoration: InputDecoration(
               prefixIcon: Padding(
                 padding: const EdgeInsets.only(left: 10),
-                child: Icon(iconData, color: Theme.of(context).primaryColor),
+                child: Icon(
+                  iconData,
+                  color: Theme.of(context).primaryColor,
+                ),
               ),
               border: InputBorder.none,
             ),
           ),
         )
       ],
-    );
-  }
-
-  Widget greenButton(String title, Function onPressed) {
-    return MaterialButton(
-      minWidth: Get.width,
-      height: 50,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-      color: Theme.of(context).primaryColor,
-      onPressed: () => onPressed(),
-      child: Text(
-        title,
-        style: GoogleFonts.poppins(
-            fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
-      ),
     );
   }
 }

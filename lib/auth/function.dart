@@ -1,6 +1,19 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'dart:developer';
+import 'dart:io';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+// import 'package:green_taxi/views/profile_settings.dart';
+import 'package:path/path.dart' as Path;
+import 'package:sms_otp/auth/sign_in.dart';
+
+import '../home.dart';
 
 final _auth = FirebaseAuth.instance;
 void authWithPhoneNumber(String phone,
@@ -48,9 +61,52 @@ Future<void> validateOtp(String smsCode, String verificationId) async {
   }
 }
 
+// Future<void> disconnect() async {
+//   await _auth.signOut();
+//   return;
+// }
+
 Future<void> disconnect() async {
   await _auth.signOut();
-  return;
 }
 
 User? get user => _auth.currentUser;
+
+Future<String> uploadImage(File image) async {
+  try {
+    String imageUrl = '';
+    String fileName = Path.basename(image.path);
+    var reference = FirebaseStorage.instance.ref().child('users/$fileName');
+    UploadTask uploadTask = reference.putFile(image);
+    TaskSnapshot taskSnapshot = await uploadTask.whenComplete(() => null);
+    await taskSnapshot.ref.getDownloadURL().then(
+      (value) {
+        imageUrl = value;
+        print("Download URL: $value");
+      },
+    );
+
+    return imageUrl;
+  } catch (e) {
+    Fluttertoast.showToast(msg: e.toString());
+    throw e;
+  }
+}
+
+Future<void> storeUserInfo(File selectedImage, String name, String home,
+    String business, String shop, BuildContext context) async {
+  try {
+    String url = await uploadImage(selectedImage);
+    String uid = FirebaseAuth.instance.currentUser!.uid;
+    await FirebaseFirestore.instance.collection('users').doc(uid).set({
+      'image': url,
+      'name': name,
+      'home_address': home,
+      'business_address': business,
+      'shopping_address': shop
+    });
+  } catch (exception) {
+    Fluttertoast.showToast(msg: exception.toString());
+    throw exception;
+  }
+}

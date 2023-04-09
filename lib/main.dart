@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:sms_otp/firebase_options.dart';
 import 'package:sms_otp/home.dart';
 import 'package:sms_otp/auth/sign_in.dart';
@@ -21,7 +22,7 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
       title: 'SMS OTP',
       theme: ThemeData(
         // Define the default brightness and colors.
@@ -74,7 +75,7 @@ class MyApp extends StatelessWidget {
                   if (snapshot.hasError) {
                     return const Text('Error');
                   } else if (snapshot.data!.exists) {
-                    return const Home();
+                    return Home();
                   } else {
                     return const ProfileSettingScreen();
                   }
