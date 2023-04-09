@@ -1,20 +1,34 @@
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 // import 'package:green_taxi/views/profile_settings.dart';
 import 'package:path/path.dart' as Path;
-import 'package:sms_otp/auth/sign_in.dart';
 
-import '../home.dart';
+// import 'package:green_taxi/models/user_model/user_model.dart';
+// import 'package:green_taxi/views/home.dart';
+// import 'package:green_taxi/views/profile_settings.dart';
+
+import '../models/user_model.dart';
+
+Future<UserModel> getUserInfo() async {
+  final user = FirebaseAuth.instance.currentUser;
+  if (user == null) {
+    throw Exception('No authenticated user');
+  }
+
+  final snapshot =
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+
+  if (!snapshot.exists) {
+    throw Exception('User not found');
+  }
+
+  return UserModel.fromJson(snapshot.data()!);
+}
 
 final _auth = FirebaseAuth.instance;
 void authWithPhoneNumber(String phone,
