@@ -14,22 +14,6 @@ import 'package:path/path.dart' as Path;
 
 import '../models/user_model.dart';
 
-Future<UserModel> getUserInfo() async {
-  final user = FirebaseAuth.instance.currentUser;
-  if (user == null) {
-    throw Exception('No authenticated user');
-  }
-
-  final snapshot =
-      await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
-
-  if (!snapshot.exists) {
-    throw Exception('User not found');
-  }
-
-  return UserModel.fromJson(snapshot.data()!);
-}
-
 final _auth = FirebaseAuth.instance;
 void authWithPhoneNumber(String phone,
     {required Function(String value, int? value1) onCodeSend,
@@ -75,11 +59,6 @@ Future<void> validateOtp(String smsCode, String verificationId) async {
         fontSize: 16.0);
   }
 }
-
-// Future<void> disconnect() async {
-//   await _auth.signOut();
-//   return;
-// }
 
 Future<void> disconnect() async {
   await _auth.signOut();

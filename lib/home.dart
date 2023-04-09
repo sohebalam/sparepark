@@ -7,8 +7,7 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:google_maps_webservice/places.dart';
 import 'package:sms_otp/shared/app_constants.dart';
 import 'package:sms_otp/shared/function.dart';
-
-import 'models/user_model.dart';
+import 'package:sms_otp/shared/auth_controller.dart';
 // import 'package:green_taxi/views/my_profile.dart';
 
 // import '../controller/auth_controller.dart';
@@ -25,14 +24,13 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   String? _mapStyle;
 
-  // AuthController authController = Get.put(AuthController());
-  var myUser = UserModel().obs;
+  AuthController authController = Get.put(AuthController());
 
   @override
   void initState() {
     super.initState();
 
-    getUserInfo();
+    authController.getUserInfo();
 
     rootBundle.loadString('assets/map_style.txt').then((string) {
       _mapStyle = string;
@@ -82,7 +80,7 @@ class _HomeScreenState extends State<HomeScreen> {
       top: 0,
       left: 0,
       right: 0,
-      child: Obx(() => myUser.value.name == null
+      child: Obx(() => authController.myUser.value.name == null
           ? Center(
               child: CircularProgressIndicator(),
             )
@@ -100,12 +98,13 @@ class _HomeScreenState extends State<HomeScreen> {
                     height: 60,
                     decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        image: myUser.value.image == null
+                        image: authController.myUser.value.image == null
                             ? DecorationImage(
                                 image: AssetImage('assets/person.png'),
                                 fit: BoxFit.fill)
                             : DecorationImage(
-                                image: NetworkImage(myUser.value.image!),
+                                image: NetworkImage(
+                                    authController.myUser.value.image!),
                                 fit: BoxFit.fill)),
                   ),
                   const SizedBox(
@@ -122,7 +121,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               style:
                                   TextStyle(color: Colors.black, fontSize: 14)),
                           TextSpan(
-                              text: myUser.value.name,
+                              text: authController.myUser.value.name,
                               style: TextStyle(
                                   color: Colors.green,
                                   fontSize: 16,
@@ -530,12 +529,13 @@ class _HomeScreenState extends State<HomeScreen> {
                     height: 80,
                     decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        image: myUser.value.image == null
+                        image: authController.myUser.value.image == null
                             ? const DecorationImage(
                                 image: AssetImage('assets/person.png'),
                                 fit: BoxFit.fill)
                             : DecorationImage(
-                                image: NetworkImage(myUser.value.image!),
+                                image: NetworkImage(
+                                    authController.myUser.value.image!),
                                 fit: BoxFit.fill)),
                   ),
                   const SizedBox(
@@ -551,9 +551,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                 color: Colors.black.withOpacity(0.28),
                                 fontSize: 14)),
                         Text(
-                          myUser.value.name == null
+                          authController.myUser.value.name == null
                               ? "Mark"
-                              : myUser.value.name!,
+                              : authController.myUser.value.name!,
                           style: GoogleFonts.poppins(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
