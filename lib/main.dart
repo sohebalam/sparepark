@@ -75,7 +75,7 @@ class MyApp extends StatelessWidget {
                   if (snapshot.hasError) {
                     return const Text('Error');
                   } else if (snapshot.data!.exists) {
-                    return Home();
+                    return HomeScreen();
                   } else {
                     return const ProfileSettingScreen();
                   }

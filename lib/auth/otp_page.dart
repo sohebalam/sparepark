@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:pinput/pinput.dart';
-import 'package:sms_otp/auth/function.dart';
+import 'package:sms_otp/shared/function.dart';
 
 class VerificationOtp extends StatefulWidget {
   const VerificationOtp(

@@ -5,7 +5,7 @@ import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:sms_otp/auth/otp_page.dart';
 import 'package:sms_otp/style/contstants.dart';
 
-import 'function.dart';
+import '../shared/function.dart';
 
 class SignInView extends StatefulWidget {
   const SignInView({Key? key}) : super(key: key);

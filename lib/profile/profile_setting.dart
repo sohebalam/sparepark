@@ -13,8 +13,8 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 // import 'package:sms_otp/widgets/green_intro_widget.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as Path;
-import 'package:sms_otp/auth/function.dart';
-import '../auth/function.dart';
+import 'package:sms_otp/shared/function.dart';
+import '../shared/function.dart';
 import '../home.dart';
 
 import 'dart:io';
@@ -204,7 +204,7 @@ class _ProfileSettingScreenState extends State<ProfileSettingScreen> {
                               Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) => Home(),
+                                  builder: (_) => HomeScreen(),
                                 ),
                               );
                             },
