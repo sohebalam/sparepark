@@ -1,8 +1,11 @@
+import 'dart:typed_data';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'dart:io';
-
+import 'dart:ui' as ui;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 // import 'package:green_taxi/views/profile_settings.dart';
@@ -103,4 +106,20 @@ Future<void> storeUserInfo(File selectedImage, String name, String home,
     Fluttertoast.showToast(msg: exception.toString());
     throw exception;
   }
+}
+
+late Uint8List markIcons;
+
+loadCustomMarker() async {
+  markIcons = await loadAsset('assets/dest_marker.png', 100);
+}
+
+Future<Uint8List> loadAsset(String path, int width) async {
+  ByteData data = await rootBundle.load(path);
+  ui.Codec codec = await ui.instantiateImageCodec(data.buffer.asUint8List(),
+      targetHeight: width);
+  ui.FrameInfo fi = await codec.getNextFrame();
+  return (await fi.image.toByteData(format: ui.ImageByteFormat.png))!
+      .buffer
+      .asUint8List();
 }

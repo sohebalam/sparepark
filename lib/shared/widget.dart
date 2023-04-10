@@ -8,12 +8,12 @@ import 'package:sms_otp/shared/auth_controller.dart';
 
 import '../profile/my_profile.dart';
 
-final auth = FirebaseAuth.instance;
+// final auth = FirebaseAuth.instance;
 
-final user = auth.currentUser;
+// final user = auth.currentUser;
 AuthController authController = Get.put(AuthController());
 
-MyDrawer() {
+MyDrawer(user) {
   // AuthController authController = Get.put(AuthController());
   return Drawer(
     child: Column(

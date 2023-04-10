@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -11,6 +12,7 @@ import 'package:sms_otp/shared/app_constants.dart';
 import 'package:sms_otp/shared/function.dart';
 import 'package:sms_otp/shared/auth_controller.dart';
 import 'package:sms_otp/shared/widget.dart';
+import 'package:geocoding/geocoding.dart' as geoCoding;
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -24,6 +26,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   AuthController authController = Get.put(AuthController());
 
+  late LatLng destination;
+  late LatLng source;
+  Set<Marker> markers = Set<Marker>();
+
   @override
   void initState() {
     super.initState();
@@ -33,6 +39,10 @@ class _HomeScreenState extends State<HomeScreen> {
     rootBundle.loadString('assets/map_style.txt').then((string) {
       _mapStyle = string;
     });
+    loadCustomMarker();
+    final auth = FirebaseAuth.instance;
+
+    final user = auth.currentUser;
   }
 
   final CameraPosition _kGooglePlex = CameraPosition(
@@ -53,7 +63,7 @@ class _HomeScreenState extends State<HomeScreen> {
       //     },
       //   ),
       // ),
-      drawer: MyDrawer(),
+      drawer: MyDrawer(user),
       body: Stack(
         children: [
           Positioned(
@@ -62,6 +72,7 @@ class _HomeScreenState extends State<HomeScreen> {
             right: 0,
             bottom: 0,
             child: GoogleMap(
+              markers: markers,
               zoomControlsEnabled: false,
               onMapCreated: (GoogleMapController controller) {
                 myMapController = controller;
@@ -98,7 +109,7 @@ class _HomeScreenState extends State<HomeScreen> {
       );
 
       if (p == null) {
-        Fluttertoast.showToast(msg: "No prediction selected");
+        Fluttertoast.showToast(msg: "No destination selected");
         return "";
       }
 
@@ -113,61 +124,6 @@ class _HomeScreenState extends State<HomeScreen> {
   TextEditingController sourceController = TextEditingController();
 
   bool showSourceField = false;
-
-  // Widget buildTextField() {
-  //   return Positioned(
-  //     top: 170,
-  //     left: 20,
-  //     right: 20,
-  //     child: Container(
-  //       width: Get.width,
-  //       height: 50,
-  //       padding: EdgeInsets.only(left: 15),
-  //       decoration: BoxDecoration(
-  //           color: Colors.white,
-  //           boxShadow: [
-  //             BoxShadow(
-  //                 color: Colors.black.withOpacity(0.05),
-  //                 spreadRadius: 4,
-  //                 blurRadius: 10)
-  //           ],
-  //           borderRadius: BorderRadius.circular(8)),
-  //       child: TextFormField(
-  //         controller: destinationController,
-  //         readOnly: true,
-  //         onTap: () async {
-  //           String? selectedPlace = await showGoogleAutoComplete();
-
-  //           if (selectedPlace.isNotEmpty) {
-  //             destinationController.text = selectedPlace;
-  //           }
-
-  //           setState(() {
-  //             showSourceField = true;
-  //           });
-  //         },
-  //         style: GoogleFonts.poppins(
-  //           fontSize: 16,
-  //           fontWeight: FontWeight.bold,
-  //         ),
-  //         decoration: InputDecoration(
-  //           hintText: 'Search for a destination',
-  //           hintStyle: GoogleFonts.poppins(
-  //             fontSize: 16,
-  //             fontWeight: FontWeight.bold,
-  //           ),
-  //           suffixIcon: Padding(
-  //             padding: const EdgeInsets.only(left: 10),
-  //             child: Icon(
-  //               Icons.search,
-  //             ),
-  //           ),
-  //           border: InputBorder.none,
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
 
   Widget buildTextField() {
     return Positioned(
@@ -195,15 +151,34 @@ class _HomeScreenState extends State<HomeScreen> {
           onTap: () async {
             String? selectedPlace = await showGoogleAutoComplete();
 
-            if (selectedPlace != null && selectedPlace.isNotEmpty) {
+            if (selectedPlace.isNotEmpty) {
               destinationController.text = selectedPlace;
             } else {
               destinationController.text = "Enter a destination";
             }
+            List<geoCoding.Location> locations =
+                await geoCoding.locationFromAddress(selectedPlace);
 
+            destination =
+                LatLng(locations.first.latitude, locations.first.longitude);
+
+            markers.add(Marker(
+              markerId: MarkerId(selectedPlace),
+              infoWindow: InfoWindow(
+                title: 'Destination: $selectedPlace',
+              ),
+              position: destination,
+              icon: BitmapDescriptor.fromBytes(markIcons),
+            ));
+
+            myMapController!.animateCamera(CameraUpdate.newCameraPosition(
+                CameraPosition(target: destination, zoom: 14)
+                //17 is new zoom level
+                ));
             setState(() {
               showSourceField = true;
             });
+            // }
           },
           style: GoogleFonts.poppins(
             fontSize: 16,
@@ -478,56 +453,3 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
-
-
-
-// import 'package:firebase_auth/firebase_auth.dart';
-// import 'package:flutter/material.dart';
-// import 'package:get/get.dart';
-// import 'package:google_maps_flutter/google_maps_flutter.dart';
-// import 'package:sms_otp/auth/function.dart';
-// import 'package:sms_otp/auth/sign_in.dart';
-
-// final auth = FirebaseAuth.instance;
-
-// final user = auth.currentUser;
-
-// class Home extends StatelessWidget {
-//   Home({Key? key}) : super(key: key);
-//   @override
-//   static const CameraPosition _kGooglePlex = CameraPosition(
-//     target: LatLng(37.42796133580664, -122.085749655962),
-//     zoom: 14.4746,
-//   );
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text("Home Page"),
-//         actions: [
-//           IconButton(
-//             onPressed: () async {
-//               await disconnect();
-//               if (user != null) {
-//               } else {
-//                 Get.to(SignInView());
-//               }
-//             },
-//             icon: const Icon(Icons.logout_outlined),
-//           )
-//         ],
-//       ),
-//       // body: Center(
-//       //   child: Column(
-//       //     mainAxisAlignment: MainAxisAlignment.center,
-//       //     children: [
-//       //       Text("Phone number: " + (user?.phoneNumber ?? "")),
-//       //       Text("Uid: " + (user?.uid ?? ""))
-//       //     ],
-//       //   ),
-//       body: GoogleMap(
-//         mapType: MapType.hybrid,
-//         initialCameraPosition: _kGooglePlex,
-//       ),
-//     );
-//   }
-// }
