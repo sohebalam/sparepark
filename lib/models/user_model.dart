@@ -15,4 +15,10 @@ class UserModel {
     name = json['name'];
     image = json['image'];
   }
+
+  get homeAddress => null;
+
+  get bussinessAddres => null;
+
+  get shoppingAddress => null;
 }
