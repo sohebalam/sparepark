@@ -11,6 +11,7 @@ import 'package:sms_otp/profile/my_profile.dart';
 import 'package:sms_otp/shared/app_constants.dart';
 import 'package:sms_otp/shared/function.dart';
 import 'package:sms_otp/shared/auth_controller.dart';
+import 'package:sms_otp/shared/polyline_handler.dart';
 import 'package:sms_otp/shared/widget.dart';
 import 'package:geocoding/geocoding.dart' as geoCoding;
 
@@ -28,6 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   late LatLng destination;
   late LatLng source;
+  final Set<Polyline> _polyline = {};
   Set<Marker> markers = Set<Marker>();
 
   @override
@@ -73,6 +75,7 @@ class _HomeScreenState extends State<HomeScreen> {
             bottom: 0,
             child: GoogleMap(
               markers: markers,
+              polylines: polyline,
               zoomControlsEnabled: false,
               onMapCreated: (GoogleMapController controller) {
                 myMapController = controller;
@@ -277,7 +280,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Row(
                       children: [
                         Text(
-                          "KDA, KOHAT",
+                          "Barnet, London",
                           style: TextStyle(
                               color: Colors.black,
                               fontSize: 12,
@@ -316,7 +319,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Row(
                       children: [
                         Text(
-                          "Tehsil, KOHAT",
+                          "Enfield, London",
                           style: TextStyle(
                               color: Colors.black,
                               fontSize: 12,
@@ -333,9 +336,36 @@ class _HomeScreenState extends State<HomeScreen> {
                     onTap: () async {
                       Get.back();
                       String? place = await showGoogleAutoComplete();
-                      if (place != null && place.isNotEmpty) {
+                      if (place.isNotEmpty) {
                         sourceController.text = place;
                       }
+
+                      List<geoCoding.Location> locations =
+                          await geoCoding.locationFromAddress(place);
+
+                      source = LatLng(
+                          locations.first.latitude, locations.first.longitude);
+
+                      if (markers.length >= 2) {
+                        markers.remove(markers.last);
+                      }
+                      markers.add(Marker(
+                          markerId: MarkerId(place),
+                          infoWindow: InfoWindow(
+                            title: 'Source: ${place}',
+                          ),
+                          position: source));
+                      myMapController!.animateCamera(
+                          CameraUpdate.newCameraPosition(
+                              CameraPosition(target: source, zoom: 14)
+                              //17 is new zoom level
+                              ));
+
+                      setState(() {});
+
+                      drawPolyline(place);
+
+                      // await getPolylines(source, destination);
                     },
                     child: Container(
                       width: Get.width,
@@ -451,5 +481,16 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
+  }
+
+  void drawPolyline(String placeId) {
+    _polyline.clear();
+    _polyline.add(Polyline(
+      polylineId: PolylineId(placeId),
+      visible: true,
+      points: [source, destination],
+      color: Theme.of(context).primaryColor,
+      width: 5,
+    ));
   }
 }
