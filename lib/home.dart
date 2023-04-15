@@ -11,6 +11,7 @@ import 'package:sms_otp/profile/my_profile.dart';
 import 'package:sms_otp/shared/app_constants.dart';
 import 'package:sms_otp/shared/function.dart';
 import 'package:sms_otp/shared/auth_controller.dart';
+import 'package:sms_otp/shared/map.dart';
 import 'package:sms_otp/shared/polyline_handler.dart';
 import 'package:sms_otp/shared/widget.dart';
 import 'package:geocoding/geocoding.dart' as geoCoding;
@@ -360,6 +361,17 @@ class _HomeScreenState extends State<HomeScreen> {
                               CameraPosition(target: source, zoom: 14)
                               //17 is new zoom level
                               ));
+                      if (markers.length >= 2) {
+                        // check if markers has at least 2 elements
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => MapScreen(
+                                startLocation: source,
+                                endLocation: destination),
+                          ),
+                        );
+                      }
 
                       setState(() {});
 
