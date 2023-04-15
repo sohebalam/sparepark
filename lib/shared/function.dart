@@ -9,10 +9,12 @@ import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 // import 'package:green_taxi/views/profile_settings.dart';
 import 'package:path/path.dart' as Path;
 import 'package:sms_otp/shared/app_constants.dart';
 import 'package:google_maps_webservice/places.dart';
+import 'package:geocoding/geocoding.dart' as geoCoding;
 
 // import 'package:green_taxi/models/user_model/user_model.dart';
 // import 'package:green_taxi/views/home.dart';
@@ -153,4 +155,10 @@ Future<Prediction?> showGoogleAutoComplete(BuildContext context) async {
     Fluttertoast.showToast(msg: e.toString());
     return null;
   }
+}
+
+Future<LatLng> buildLatLngFromAdress(String place) async {
+  List<geoCoding.Location> locations =
+      await geoCoding.locationFromAddress(place);
+  return LatLng(locations.first.latitude, locations.first.longitude);
 }

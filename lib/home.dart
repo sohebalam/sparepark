@@ -127,36 +127,34 @@ class _HomeScreenState extends State<HomeScreen> {
           onTap: () async {
             Prediction? p = await showGoogleAutoComplete(context);
 
-            String? selectedPlace = p!.description!;
+            if (p != null) {
+              String? selectedPlace = p!.description!;
 
-            if (selectedPlace.isNotEmpty) {
-              destinationController.text = selectedPlace;
-            } else {
-              destinationController.text = "Enter a destination";
+              if (selectedPlace.isNotEmpty) {
+                destinationController.text = selectedPlace;
+              } else {
+                destinationController.text = "Enter a destination";
+              }
+
+              destination = await buildLatLngFromAdress(selectedPlace);
+
+              markers.add(Marker(
+                markerId: MarkerId(selectedPlace),
+                infoWindow: InfoWindow(
+                  title: 'Destination: $selectedPlace',
+                ),
+                position: destination,
+                icon: BitmapDescriptor.fromBytes(markIcons),
+              ));
+
+              myMapController!.animateCamera(CameraUpdate.newCameraPosition(
+                  CameraPosition(target: destination, zoom: 14)
+                  //17 is new zoom level
+                  ));
+              setState(() {
+                showSourceField = true;
+              });
             }
-            List<geoCoding.Location> locations =
-                await geoCoding.locationFromAddress(selectedPlace);
-
-            destination =
-                LatLng(locations.first.latitude, locations.first.longitude);
-
-            markers.add(Marker(
-              markerId: MarkerId(selectedPlace),
-              infoWindow: InfoWindow(
-                title: 'Destination: $selectedPlace',
-              ),
-              position: destination,
-              icon: BitmapDescriptor.fromBytes(markIcons),
-            ));
-
-            myMapController!.animateCamera(CameraUpdate.newCameraPosition(
-                CameraPosition(target: destination, zoom: 14)
-                //17 is new zoom level
-                ));
-            setState(() {
-              showSourceField = true;
-            });
-            // }
           },
           style: GoogleFonts.poppins(
             fontSize: 16,
@@ -311,46 +309,41 @@ class _HomeScreenState extends State<HomeScreen> {
                     onTap: () async {
                       Get.back();
                       Prediction? p = await showGoogleAutoComplete(context);
-                      String? place = p!.description!;
-                      if (place.isNotEmpty) {
+
+                      if (p != null) {
+                        String? place = p.description!;
                         sourceController.text = place;
+                        source = await buildLatLngFromAdress(place);
+                        if (markers.length >= 2) {
+                          markers.remove(markers.last);
+                        }
+                        markers.add(Marker(
+                            markerId: MarkerId(place),
+                            infoWindow: InfoWindow(
+                              title: 'Source: ${place}',
+                            ),
+                            position: source));
+                        myMapController!.animateCamera(
+                            CameraUpdate.newCameraPosition(
+                                CameraPosition(target: source, zoom: 14)
+                                //17 is new zoom level
+                                ));
+                        if (markers.length >= 2) {
+                          // check if markers has at least 2 elements
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => MapScreen(
+                                  startLocation: source,
+                                  endLocation: destination),
+                            ),
+                          );
+                        }
+
+                        setState(() {});
+
+                        drawPolyline(place);
                       }
-
-                      List<geoCoding.Location> locations =
-                          await geoCoding.locationFromAddress(place);
-
-                      source = LatLng(
-                          locations.first.latitude, locations.first.longitude);
-
-                      if (markers.length >= 2) {
-                        markers.remove(markers.last);
-                      }
-                      markers.add(Marker(
-                          markerId: MarkerId(place),
-                          infoWindow: InfoWindow(
-                            title: 'Source: ${place}',
-                          ),
-                          position: source));
-                      myMapController!.animateCamera(
-                          CameraUpdate.newCameraPosition(
-                              CameraPosition(target: source, zoom: 14)
-                              //17 is new zoom level
-                              ));
-                      if (markers.length >= 2) {
-                        // check if markers has at least 2 elements
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => MapScreen(
-                                startLocation: source,
-                                endLocation: destination),
-                          ),
-                        );
-                      }
-
-                      setState(() {});
-
-                      drawPolyline(place);
 
                       // await getPolylines(source, destination);
                     },

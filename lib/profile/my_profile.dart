@@ -1,4 +1,3 @@
-
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -7,13 +6,12 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-// import 'package:green_taxi/controller/auth_controller.dart';
-// import 'package:green_taxi/utils/app_colors.dart';
-// import 'package:green_taxi/views/home.dart';
-// import 'package:green_taxi/widgets/green_intro_widget.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as Path;
 import 'package:sms_otp/shared/auth_controller.dart';
+import 'package:sms_otp/shared/function.dart';
+import 'package:google_maps_webservice/places.dart';
 
 class MyProfile extends StatefulWidget {
   const MyProfile({Key? key}) : super(key: key);
@@ -29,6 +27,9 @@ class _MyProfileState extends State<MyProfile> {
   TextEditingController shopController = TextEditingController();
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
   AuthController authController = Get.put(AuthController());
+  late LatLng homeAddress;
+  late LatLng businessAddress;
+  late LatLng shopAddress;
 
   final ImagePicker _picker = ImagePicker();
   File? selectedImage;
@@ -64,7 +65,6 @@ class _MyProfileState extends State<MyProfile> {
               height: Get.height * 0.4,
               child: Stack(
                 children: [
-                  // greenIntroWidgetWithoutLogos(title: 'My Profile'),
                   Align(
                     alignment: Alignment.bottomCenter,
                     child: InkWell(
@@ -149,7 +149,15 @@ class _MyProfileState extends State<MyProfile> {
                       }
 
                       return null;
-                    }),
+                    }, onTap: () async {
+                      Prediction? p = await showGoogleAutoComplete(context);
+
+                      if (p != null) {
+                        homeAddress =
+                            await buildLatLngFromAdress(p.description!);
+                        homeController.text = p.description!;
+                      }
+                    }, readOnly: true),
                     const SizedBox(
                       height: 10,
                     ),
@@ -160,6 +168,14 @@ class _MyProfileState extends State<MyProfile> {
                       }
 
                       return null;
+                    }, onTap: () async {
+                      Prediction? p = await showGoogleAutoComplete(context);
+
+                      if (p != null) {
+                        businessAddress =
+                            await buildLatLngFromAdress(p.description!);
+                        businessController.text = p.description!;
+                      }
                     }),
                     const SizedBox(
                       height: 10,
@@ -173,6 +189,14 @@ class _MyProfileState extends State<MyProfile> {
                       }
 
                       return null;
+                    }, onTap: () async {
+                      Prediction? p = await showGoogleAutoComplete(context);
+
+                      if (p != null) {
+                        shopAddress =
+                            await buildLatLngFromAdress(p.description!);
+                        shopController.text = p.description!;
+                      }
                     }),
                     const SizedBox(
                       height: 30,
@@ -206,7 +230,8 @@ class _MyProfileState extends State<MyProfile> {
   }
 
   TextFieldWidget(String title, IconData iconData,
-      TextEditingController controller, Function validator) {
+      TextEditingController controller, Function validator,
+      {Function? onTap, bool readOnly = false}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -233,6 +258,8 @@ class _MyProfileState extends State<MyProfile> {
               ],
               borderRadius: BorderRadius.circular(8)),
           child: TextFormField(
+            readOnly: readOnly,
+            onTap: () => onTap!(),
             validator: (input) => validator(input),
             controller: controller,
             style: GoogleFonts.poppins(
