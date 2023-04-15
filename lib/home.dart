@@ -330,30 +330,66 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(
             height: 10,
           ),
-          Container(
-            width: Get.width,
-            height: 50,
-            padding: EdgeInsets.symmetric(horizontal: 10),
-            decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-                boxShadow: [
-                  BoxShadow(
-                      color: Colors.black.withOpacity(0.04),
-                      spreadRadius: 4,
-                      blurRadius: 10)
-                ]),
-            child: Row(
-              children: [
-                Text(
-                  authController.myUser.value.hAddress!,
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600),
-                  textAlign: TextAlign.start,
-                ),
-              ],
+          InkWell(
+            onTap: () async {
+              Get.back();
+              source = authController.myUser.value.homeAddress!;
+
+              if (markers.length >= 2) {
+                markers.remove(markers.last);
+              }
+              markers.add(Marker(
+                  markerId: MarkerId(authController.myUser.value.hAddress!),
+                  infoWindow: InfoWindow(
+                    title: 'Source: ${authController.myUser.value.hAddress!}',
+                  ),
+                  position: source));
+              myMapController!.animateCamera(CameraUpdate.newCameraPosition(
+                  CameraPosition(target: source, zoom: 14)
+                  //17 is new zoom level
+                  ));
+              if (markers.length >= 2) {
+                // check if markers has at least 2 elements
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MapScreen(
+                        startLocation: source, endLocation: destination),
+                  ),
+                );
+              }
+
+              setState(() {});
+
+              // drawPolyline(place);
+
+              // await getPolylines(source, destination);
+            },
+            child: Container(
+              width: Get.width,
+              height: 50,
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: [
+                    BoxShadow(
+                        color: Colors.black.withOpacity(0.04),
+                        spreadRadius: 4,
+                        blurRadius: 10)
+                  ]),
+              child: Row(
+                children: [
+                  Text(
+                    authController.myUser.value.hAddress!,
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600),
+                    textAlign: TextAlign.start,
+                  ),
+                ],
+              ),
             ),
           ),
           const SizedBox(
