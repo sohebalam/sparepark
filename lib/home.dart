@@ -7,6 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:google_maps_webservice/places.dart';
+import 'package:sms_otp/auth/sign_in.dart';
 import 'package:sms_otp/profile/my_profile.dart';
 import 'package:sms_otp/shared/app_constants.dart';
 import 'package:sms_otp/shared/function.dart';
@@ -58,14 +59,22 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   leading: IconButton(
-      //     icon: Icon(Icons.menu),
-      //     onPressed: () {
-      //       Scaffold.of(context).openDrawer();
-      //     },
-      //   ),
-      // ),
+      appBar: AppBar(
+        title: const Text("Home Page"),
+        backgroundColor: Theme.of(context).primaryColor,
+        actions: [
+          IconButton(
+            onPressed: () async {
+              await disconnect();
+              if (user != null) {
+              } else {
+                Get.to(SignInView());
+              }
+            },
+            icon: const Icon(Icons.logout_outlined),
+          )
+        ],
+      ),
       drawer: MyDrawer(user),
       body: Stack(
         children: [
