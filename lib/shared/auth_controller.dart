@@ -99,6 +99,16 @@ class AuthController extends GetxController {
     });
   }
 
+  storeUserCard(String number, String expiry, String cvv, String name) async {
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .collection('cards')
+        .add({'name': name, 'number': number, 'cvv': cvv, 'expiry': expiry});
+
+    return true;
+  }
+
   Future<Prediction?> showGoogleAutoComplete(BuildContext context) async {
     Prediction? p = await PlacesAutocomplete.show(
       offset: 0,

@@ -1,22 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_credit_card/credit_card_brand.dart';
 import 'package:flutter_credit_card/flutter_credit_card.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:sms_otp/screens/add_card.dart';
 import 'package:sms_otp/shared/auth_controller.dart';
 
 class PaymentScreen extends StatefulWidget {
-  const PaymentScreen({Key? key}) : super(key: key);
-
   @override
-  State<PaymentScreen> createState() => _PaymentScreenState();
+  State<StatefulWidget> createState() {
+    return PaymentScreenState();
+  }
 }
 
-class _PaymentScreenState extends State<PaymentScreen> {
+class PaymentScreenState extends State<PaymentScreen> {
   String cardNumber = '5555 55555 5555 4444';
   String expiryDate = '12/25';
   String cardHolderName = 'Osama Qureshi';
@@ -31,7 +28,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
   @override
   void initState() {
-    // authController.getUserCards();
+    authController.getUserCards();
     border = OutlineInputBorder(
       borderSide: BorderSide(
         color: Colors.grey.withOpacity(0.7),
@@ -50,8 +47,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
         height: Get.height,
         child: Stack(
           children: <Widget>[
+            // greenIntroWidgetWithoutLogos(title: 'My Card'),
             Positioned(
-              top: 120,
+              top: 60,
               left: 0,
               right: 0,
               bottom: 80,
@@ -91,7 +89,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       }
 
                       return CreditCardWidget(
-                        cardBgColor: Colors.black,
+                        cardBgColor: Colors.orange,
                         cardNumber: cardNumber,
                         expiryDate: expiryDate,
                         cardHolderName: cardHolderName,
@@ -120,21 +118,21 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       style: GoogleFonts.poppins(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Colors.orange),
+                          color: Theme.of(context).primaryColor),
                     ),
                     SizedBox(
                       width: 10,
                     ),
-                    // FloatingActionButton(
-                    //   onPressed: () {
-                    //     Get.to(() => AddPaymentCardScreen());
-                    //   },
-                    //   child: Icon(
-                    //     Icons.arrow_forward,
-                    //     color: Colors.white,
-                    //   ),
-                    //   backgroundColor: AppColors.greenColor,
-                    // )
+                    FloatingActionButton(
+                      onPressed: () {
+                        Get.to(() => AddCard());
+                      },
+                      child: Icon(
+                        Icons.arrow_forward,
+                        color: Colors.white,
+                      ),
+                      backgroundColor: Theme.of(context).primaryColor,
+                    )
                   ],
                 ))
           ],
@@ -143,15 +141,3 @@ class _PaymentScreenState extends State<PaymentScreen> {
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-// }
