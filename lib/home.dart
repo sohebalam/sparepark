@@ -201,183 +201,7 @@ class _HomeScreenState extends State<HomeScreen> {
           controller: sourceController,
           readOnly: true,
           onTap: () async {
-            Get.bottomSheet(Container(
-              width: Get.width,
-              height: Get.height * 0.5,
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(8),
-                      topRight: Radius.circular(8)),
-                  color: Colors.white),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Text(
-                    "Select Your Location",
-                    style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  Text(
-                    "Home Address",
-                    style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Container(
-                    width: Get.width,
-                    height: 50,
-                    padding: EdgeInsets.symmetric(horizontal: 10),
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                        boxShadow: [
-                          BoxShadow(
-                              color: Colors.black.withOpacity(0.04),
-                              spreadRadius: 4,
-                              blurRadius: 10)
-                        ]),
-                    child: Row(
-                      children: [
-                        Text(
-                          "Barnet, London",
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600),
-                          textAlign: TextAlign.start,
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  Text(
-                    "Business Address",
-                    style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Container(
-                    width: Get.width,
-                    height: 50,
-                    padding: EdgeInsets.symmetric(horizontal: 10),
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                        boxShadow: [
-                          BoxShadow(
-                              color: Colors.black.withOpacity(0.04),
-                              spreadRadius: 4,
-                              blurRadius: 10)
-                        ]),
-                    child: Row(
-                      children: [
-                        Text(
-                          "Enfield, London",
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600),
-                          textAlign: TextAlign.start,
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  InkWell(
-                    onTap: () async {
-                      Get.back();
-                      Prediction? p = await showGoogleAutoComplete(context);
-
-                      if (p != null) {
-                        String? place = p.description!;
-                        sourceController.text = place;
-                        source = await buildLatLngFromAdress(place);
-                        if (markers.length >= 2) {
-                          markers.remove(markers.last);
-                        }
-                        markers.add(Marker(
-                            markerId: MarkerId(place),
-                            infoWindow: InfoWindow(
-                              title: 'Source: ${place}',
-                            ),
-                            position: source));
-                        myMapController!.animateCamera(
-                            CameraUpdate.newCameraPosition(
-                                CameraPosition(target: source, zoom: 14)
-                                //17 is new zoom level
-                                ));
-                        if (markers.length >= 2) {
-                          // check if markers has at least 2 elements
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => MapScreen(
-                                  startLocation: source,
-                                  endLocation: destination),
-                            ),
-                          );
-                        }
-
-                        setState(() {});
-
-                        drawPolyline(place);
-                      }
-
-                      // await getPolylines(source, destination);
-                    },
-                    child: Container(
-                      width: Get.width,
-                      height: 50,
-                      padding: EdgeInsets.symmetric(horizontal: 10),
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(8),
-                          boxShadow: [
-                            BoxShadow(
-                                color: Colors.black.withOpacity(0.04),
-                                spreadRadius: 4,
-                                blurRadius: 10)
-                          ]),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            "Search for Address",
-                            style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600),
-                            textAlign: TextAlign.start,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ));
+            buildSourceSheet();
           },
           style: GoogleFonts.poppins(
             fontSize: 16,
@@ -471,6 +295,177 @@ class _HomeScreenState extends State<HomeScreen> {
       points: [source, destination],
       color: Theme.of(context).primaryColor,
       width: 5,
+    ));
+  }
+
+  void buildSourceSheet() {
+    Get.bottomSheet(Container(
+      width: Get.width,
+      height: Get.height * 0.5,
+      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(8), topRight: Radius.circular(8)),
+          color: Colors.white),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          const SizedBox(
+            height: 10,
+          ),
+          Text(
+            "Select Your Location",
+            style: TextStyle(
+                color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(
+            height: 20,
+          ),
+          Text(
+            "Home Address",
+            style: TextStyle(
+                color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          Container(
+            width: Get.width,
+            height: 50,
+            padding: EdgeInsets.symmetric(horizontal: 10),
+            decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+                boxShadow: [
+                  BoxShadow(
+                      color: Colors.black.withOpacity(0.04),
+                      spreadRadius: 4,
+                      blurRadius: 10)
+                ]),
+            child: Row(
+              children: [
+                Text(
+                  authController.myUser.value.hAddress!,
+                  style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600),
+                  textAlign: TextAlign.start,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(
+            height: 20,
+          ),
+          Text(
+            "Business Address",
+            style: TextStyle(
+                color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          Container(
+            width: Get.width,
+            height: 50,
+            padding: EdgeInsets.symmetric(horizontal: 10),
+            decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+                boxShadow: [
+                  BoxShadow(
+                      color: Colors.black.withOpacity(0.04),
+                      spreadRadius: 4,
+                      blurRadius: 10)
+                ]),
+            child: Row(
+              children: [
+                Text(
+                  authController.myUser.value.bAddress!,
+                  style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600),
+                  textAlign: TextAlign.start,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(
+            height: 20,
+          ),
+          InkWell(
+            onTap: () async {
+              Get.back();
+              Prediction? p = await showGoogleAutoComplete(context);
+
+              if (p != null) {
+                String? place = p.description!;
+                sourceController.text = place;
+                source = await buildLatLngFromAdress(place);
+                if (markers.length >= 2) {
+                  markers.remove(markers.last);
+                }
+                markers.add(Marker(
+                    markerId: MarkerId(place),
+                    infoWindow: InfoWindow(
+                      title: 'Source: ${place}',
+                    ),
+                    position: source));
+                myMapController!.animateCamera(CameraUpdate.newCameraPosition(
+                    CameraPosition(target: source, zoom: 14)
+                    //17 is new zoom level
+                    ));
+                if (markers.length >= 2) {
+                  // check if markers has at least 2 elements
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MapScreen(
+                          startLocation: source, endLocation: destination),
+                    ),
+                  );
+                }
+
+                setState(() {});
+
+                drawPolyline(place);
+              }
+
+              // await getPolylines(source, destination);
+            },
+            child: Container(
+              width: Get.width,
+              height: 50,
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: [
+                    BoxShadow(
+                        color: Colors.black.withOpacity(0.04),
+                        spreadRadius: 4,
+                        blurRadius: 10)
+                  ]),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "Search for Address",
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600),
+                    textAlign: TextAlign.start,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     ));
   }
 }
