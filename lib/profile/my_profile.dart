@@ -217,7 +217,10 @@ class _MyProfileState extends State<MyProfile> {
                                 homeController.text,
                                 businessController.text,
                                 shopController.text,
-                                url: authController.myUser.value.image ?? "");
+                                url: authController.myUser.value.image ?? "",
+                                homeLatLng: homeAddress,
+                                businessLatLng: businessAddress,
+                                shoppingLatLng: shopAddress);
                           })),
                   ],
                 ),
