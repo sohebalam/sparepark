@@ -11,7 +11,7 @@ import 'package:sms_otp/profile/my_profile.dart';
 import 'package:sms_otp/shared/app_constants.dart';
 import 'package:sms_otp/shared/function.dart';
 import 'package:sms_otp/shared/auth_controller.dart';
-import 'package:sms_otp/shared/map.dart';
+import 'package:sms_otp/screens/map.dart';
 import 'package:sms_otp/shared/polyline_handler.dart';
 import 'package:sms_otp/shared/widget.dart';
 import 'package:geocoding/geocoding.dart' as geoCoding;
