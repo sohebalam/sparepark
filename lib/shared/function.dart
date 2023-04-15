@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'dart:io';
 import 'dart:ui' as ui;
@@ -10,6 +11,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 // import 'package:green_taxi/views/profile_settings.dart';
 import 'package:path/path.dart' as Path;
+import 'package:sms_otp/shared/app_constants.dart';
+import 'package:google_maps_webservice/places.dart';
 
 // import 'package:green_taxi/models/user_model/user_model.dart';
 // import 'package:green_taxi/views/home.dart';
@@ -122,4 +125,32 @@ Future<Uint8List> loadAsset(String path, int width) async {
   return (await fi.image.toByteData(format: ui.ImageByteFormat.png))!
       .buffer
       .asUint8List();
+}
+
+Future<Prediction?> showGoogleAutoComplete(BuildContext context) async {
+  try {
+    Prediction? p = await PlacesAutocomplete.show(
+      offset: 0,
+      radius: 1000,
+      strictbounds: false,
+      region: "uk",
+      language: "en",
+      context: context,
+      mode: Mode.overlay,
+      apiKey: AppConstants.kGoogleApiKey,
+      components: [new Component(Component.country, "uk")],
+      types: ["(cities)"],
+      hint: "Search City",
+    );
+
+    if (p == null) {
+      Fluttertoast.showToast(msg: "No destination selected");
+      return null;
+    }
+
+    return p;
+  } catch (e) {
+    Fluttertoast.showToast(msg: e.toString());
+    return null;
+  }
 }

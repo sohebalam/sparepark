@@ -96,34 +96,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Future<String> showGoogleAutoComplete() async {
-    try {
-      Prediction? p = await PlacesAutocomplete.show(
-        offset: 0,
-        radius: 1000,
-        strictbounds: false,
-        region: "uk",
-        language: "en",
-        context: context,
-        mode: Mode.overlay,
-        apiKey: AppConstants.kGoogleApiKey,
-        components: [new Component(Component.country, "uk")],
-        types: ["(cities)"],
-        hint: "Search City",
-      );
-
-      if (p == null) {
-        Fluttertoast.showToast(msg: "No destination selected");
-        return "";
-      }
-
-      return p.description!;
-    } catch (e) {
-      Fluttertoast.showToast(msg: e.toString());
-      return e.toString();
-    }
-  }
-
   TextEditingController destinationController = TextEditingController();
   TextEditingController sourceController = TextEditingController();
 
@@ -153,7 +125,9 @@ class _HomeScreenState extends State<HomeScreen> {
           controller: destinationController,
           readOnly: true,
           onTap: () async {
-            String? selectedPlace = await showGoogleAutoComplete();
+            Prediction? p = await showGoogleAutoComplete(context);
+
+            String? selectedPlace = p!.description!;
 
             if (selectedPlace.isNotEmpty) {
               destinationController.text = selectedPlace;
@@ -336,7 +310,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   InkWell(
                     onTap: () async {
                       Get.back();
-                      String? place = await showGoogleAutoComplete();
+                      Prediction? p = await showGoogleAutoComplete(context);
+                      String? place = p!.description!;
                       if (place.isNotEmpty) {
                         sourceController.text = place;
                       }
