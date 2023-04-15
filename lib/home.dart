@@ -359,11 +359,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 );
               }
 
+              // await getPolylines(source, destination);
+              // buildRideConfirmationSheet();
               setState(() {});
 
               // drawPolyline(place);
-
-              // await getPolylines(source, destination);
             },
             child: Container(
               width: Get.width,
@@ -425,6 +425,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
               myMapController!.animateCamera(CameraUpdate.newCameraPosition(
                   CameraPosition(target: source, zoom: 14)));
+              if (markers.length >= 2) {
+                // check if markers has at least 2 elements
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MapScreen(
+                        startLocation: source, endLocation: destination),
+                  ),
+                );
+              }
               setState(() {});
             },
             child: Container(
@@ -489,13 +499,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   );
                 }
+                // await getPolylines(source, destination);
 
                 setState(() {});
 
-                drawPolyline(place);
+                // drawPolyline(place);
               }
-
-              // await getPolylines(source, destination);
             },
             child: Container(
               width: Get.width,

@@ -15,6 +15,7 @@ import 'package:path/path.dart' as Path;
 import 'package:sms_otp/shared/app_constants.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:geocoding/geocoding.dart' as geoCoding;
+import 'package:sms_otp/shared/widget.dart';
 
 // import 'package:green_taxi/models/user_model/user_model.dart';
 // import 'package:green_taxi/views/home.dart';
@@ -161,4 +162,49 @@ Future<LatLng> buildLatLngFromAdress(String place) async {
   List<geoCoding.Location> locations =
       await geoCoding.locationFromAddress(place);
   return LatLng(locations.first.latitude, locations.first.longitude);
+}
+
+String dropdownValue = '**** **** **** 8789';
+List<String> list = <String>[
+  '**** **** **** 8789',
+  '**** **** **** 8921',
+  '**** **** **** 1233',
+  '**** **** **** 4352'
+];
+
+buildPaymentCardWidget(BuildContext context, setState) {
+  return Container(
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Image.asset(
+          'assets/visa.png',
+          width: 40,
+        ),
+        SizedBox(
+          width: 10,
+        ),
+        DropdownButton<String>(
+          value: dropdownValue,
+          icon: const Icon(Icons.keyboard_arrow_down),
+          elevation: 16,
+          style: const TextStyle(color: Colors.deepPurple),
+          underline: Container(),
+          onChanged: (String? value) {
+            // This is called when the user selects an item.
+            setState(() {
+              dropdownValue = value!;
+            });
+          },
+          items: list.map<DropdownMenuItem<String>>((String value) {
+            return DropdownMenuItem<String>(
+              value: value,
+              child: textWidget(text: value),
+            );
+          }).toList(),
+        )
+      ],
+    ),
+  );
 }
