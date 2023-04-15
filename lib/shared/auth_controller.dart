@@ -122,4 +122,17 @@ class AuthController extends GetxController {
         await geoCoding.locationFromAddress(place);
     return LatLng(locations.first.latitude, locations.first.longitude);
   }
+
+  RxList userCards = [].obs;
+
+  getUserCards() {
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .collection('cards')
+        .snapshots()
+        .listen((event) {
+      userCards.value = event.docs;
+    });
+  }
 }

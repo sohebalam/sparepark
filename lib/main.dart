@@ -7,6 +7,7 @@ import 'package:sms_otp/firebase_options.dart';
 import 'package:sms_otp/home.dart';
 import 'package:sms_otp/auth/sign_in.dart';
 import 'package:sms_otp/profile/profile_setting.dart';
+import 'package:sms_otp/screens/cards.dart';
 import 'package:sms_otp/style/contstants.dart';
 
 void main() async {

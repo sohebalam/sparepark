@@ -4,6 +4,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:sms_otp/screens/cards.dart';
 import 'package:sms_otp/shared/auth_controller.dart';
 
 import '../profile/my_profile.dart';
@@ -86,7 +87,9 @@ MyDrawer(user) {
           padding: EdgeInsets.symmetric(horizontal: 30),
           child: Column(
             children: [
-              buildDrawerItem(title: 'Payment History', onPressed: () {}),
+              buildDrawerItem(
+                  title: 'Payment History',
+                  onPressed: () => Get.to(() => PaymentScreen())),
               buildDrawerItem(
                   title: 'Ride History', onPressed: () {}, isVisible: true),
               buildDrawerItem(title: 'Invite Friends', onPressed: () {}),
